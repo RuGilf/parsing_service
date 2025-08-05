@@ -3,6 +3,27 @@ from functions.find import *
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
+from main import update_script
+
+SPECIALTIES = {
+    "Лингвистика": "https://misis.ru/applicants/admission/progress/baccalaureate-and-specialties/spiskipodavshihzayavleniya/list-p/?id=BAC-COMM-O-450302-NITU_MISIS-OKM-000005584",
+    "Физика": "https://misis.ru/applicants/admission/progress/baccalaureate-and-specialties/spiskipodavshihzayavleniya/list-p/?id=BAC-COMM-O-030302-NITU_MISIS-OKM-000005370",
+    "Эдектроника и наноэлектроника": "https://misis.ru/applicants/admission/progress/baccalaureate-and-specialties/spiskipodavshihzayavleniya/list-p/?id=BVO-COMM-O-110304-NITU_MISIS-OKM-000005408",
+    "Материаловедение и технологии материалов": "https://misis.ru/applicants/admission/progress/baccalaureate-and-specialties/spiskipodavshihzayavleniya/list-p/?id=BVO-COMM-O-220301-NITU_MISIS-OKM-000005497",
+    "Нанотехнологии и наноматериалы": "https://misis.ru/applicants/admission/progress/baccalaureate-and-specialties/spiskipodavshihzayavleniya/list-p/?id=BAC-COMM-O-280000-NITU_MISIS-OKM-000005544",
+    "Биотехнология": "https://misis.ru/applicants/admission/progress/baccalaureate-and-specialties/spiskipodavshihzayavleniya/list-p/?id=BAC-COMM-O-190301-NITU_MISIS-OKM-000005600",
+    "Прикладная математика": "https://misis.ru/applicants/admission/progress/baccalaureate-and-specialties/spiskipodavshihzayavleniya/list-p/?id=BVO-COMM-O-010304-NITU_MISIS-OKM-000005364",
+    "Информатика и вычислительная техника": "https://misis.ru/applicants/admission/progress/baccalaureate-and-specialties/spiskipodavshihzayavleniya/list-p/?id=BVO-COMM-O-090000-NITU_MISIS-OKM-000005382",
+    "Бизнес-информатика": "https://misis.ru/applicants/admission/progress/baccalaureate-and-specialties/spiskipodavshihzayavleniya/list-p/?id=BAC-COMM-O-380305-NITU_MISIS-OKM-000005577",
+    "Технологические машины и оборудование": "https://misis.ru/applicants/admission/progress/baccalaureate-and-specialties/spiskipodavshihzayavleniya/list-p/?id=BVO-COMM-O-150302-NITU_MISIS-OKM-000005436",
+    "Металлургия": "https://misis.ru/applicants/admission/progress/baccalaureate-and-specialties/spiskipodavshihzayavleniya/list-p/?id=BVO-COMM-O-220302-NITU_MISIS-OKM-000005510",
+    "Электроэнергетика и электротехника": "https://misis.ru/applicants/admission/progress/baccalaureate-and-specialties/spiskipodavshihzayavleniya/list-p/?id=BVO-COMM-O-130302-NITU_MISIS-OKM-000005419",
+    "Геотехнологии": "https://misis.ru/applicants/admission/progress/baccalaureate-and-specialties/spiskipodavshihzayavleniya/list-p/?id=SPEC-COMM-O-210000-NITU_MISIS-OKM-000005481",
+    "Инноватика": "https://misis.ru/applicants/admission/progress/baccalaureate-and-specialties/spiskipodavshihzayavleniya/list-p/?id=BAC-COMM-O-270305-NITU_MISIS-OKM-000005594",
+    "Экономика и управление": "https://misis.ru/applicants/admission/progress/baccalaureate-and-specialties/spiskipodavshihzayavleniya/list-p/?id=BAC-COMM-O-380000-NITU_MISIS-OKM-000005551",
+}
+
+current_url = None 
 
 def find_app():
     user_number = find_line.get()
@@ -26,11 +47,23 @@ def find_app():
         output.configure(text='Ошибка при обработке данных', foreground='red')
 
 def on_update():
+    global current_url
+    if not current_url:
+        messagebox.showwarning("Предупреждение", "Сначала выберите специальность!")
+        return
+        
     try:
         update()
+        update_script(current_url)
         messagebox.showinfo("Успех", "Данные успешно обновлены!")
     except Exception as e:
         messagebox.showerror("Ошибка", f"Не удалось обновить данные: {str(e)}")
+
+def on_specialty_select(event):
+    global current_url
+    selected_spec = specialty_var.get()
+    current_url = SPECIALTIES.get(selected_spec)
+    status_label.config(text=f"Выбрано: {selected_spec}", fg="green")
 
 root = Tk()
 root.title('Парсер конкурсных списков МИСиС')
@@ -51,6 +84,23 @@ style.configure('TEntry', font=('Arial', 12), padding=5)
 
 header = Label(root, text="Конкурсные списки МИСиС", font=('Arial', 16, 'bold'), bg='#f0f0f0')
 header.pack(pady=20)
+
+spec_frame = Frame(root, bg='#f0f0f0')
+spec_frame.pack(pady=10)
+
+spec_label = Label(spec_frame, text="Выберите специальность:", bg='#f0f0f0')
+spec_label.grid(row=0, column=0, padx=5, pady=5, sticky='e')
+
+specialty_var = StringVar(root)
+specialty_var.set(list(SPECIALTIES.keys())[0])
+current_url = SPECIALTIES[list(SPECIALTIES.keys())[0]]
+
+spec_menu = OptionMenu(spec_frame, specialty_var, *SPECIALTIES.keys(), command=on_specialty_select)
+spec_menu.config(width=30, font=('Arial', 11))
+spec_menu.grid(row=0, column=1, padx=5, pady=5)
+
+status_label = Label(spec_frame, text="", bg='#f0f0f0')
+status_label.grid(row=1, column=0, columnspan=2, pady=5)
 
 control_frame = Frame(root, bg='#f0f0f0')
 control_frame.pack(pady=20)
