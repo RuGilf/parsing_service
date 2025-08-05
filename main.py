@@ -11,7 +11,7 @@ def update_script(url):
 
     with open('data.csv', mode='w', newline='') as file:
         fieldnames = ['id', 'уникальный номер', 'приоритет зачисления', 'сумма баллов', 'согласие на зачисление']
-        csv_writer = csv.DictWriter(file, fieldnames=fieldnames, delimiter=';')  # <- delimiter=';'
+        csv_writer = csv.DictWriter(file, fieldnames=fieldnames, delimiter=';')
         csv_writer.writeheader()
     
         soup = BeautifulSoup(response.text, "html.parser")
@@ -20,7 +20,7 @@ def update_script(url):
         for row in rows: 
             columns = row.find_all('td') 
 		
-            if columns[17].text == '' or None:
+            if not columns[17].text.strip():
                 agree = '-'
             else:
                 agree = '+'
@@ -34,3 +34,23 @@ def update_script(url):
             }
         
             csv_writer.writerow(data)
+
+def places_function(SPECIALTIES):
+    with open('places.csv', mode='w', newline='') as file:
+        fieldnames = ['Специальность', 'Количество мест']
+        csv_writer = csv.DictWriter(file, fieldnames=fieldnames, delimiter=';')
+        csv_writer.writeheader()
+
+        for specialty, url in SPECIALTIES.items(): 
+            response = requests.get(url, headers=headers)
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            places = soup.find('div', text=lambda t: t and 'Всего мест:' in t)
+            places_count = 'Не удалось получить данные'
+            if places:
+                places_count = places.find_next_sibling('div').get_text(strip=True)
+            
+            csv_writer.writerow({
+                'Специальность': specialty,
+                'Количество мест': places_count
+            })
