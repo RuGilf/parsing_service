@@ -3,7 +3,7 @@ from functions.find import *
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
-from main import update_script
+from main import *
 
 SPECIALTIES = {
     "Лингвистика": "https://misis.ru/applicants/admission/progress/baccalaureate-and-specialties/spiskipodavshihzayavleniya/list-p/?id=BAC-COMM-O-450302-NITU_MISIS-OKM-000005584",
@@ -27,6 +27,7 @@ current_url = None
 
 def find_app():
     user_number = find_line.get()
+    selected_spec = specialty_var.get()
     try:
         if not user_number.isdigit() or int(user_number) <= 0:
             output.configure(text='Некорректный номер', foreground='red')
@@ -34,14 +35,23 @@ def find_app():
             before_count = before(user_number)
             after_count = after(user_number)
             total_count = all()
+            current_places = int(find_place(selected_spec))
             
-            result_text = f"До вас: {before_count}\nПосле вас: {after_count}\nВсего абитуриентов: {total_count}"
+            result_text = f"До вас: {before_count}\nПосле вас: {after_count}\nВсего абитуриентов: {total_count}\nВсего мест: {current_places}"
             output.configure(text=result_text, foreground='black')
             
-            if total_count > 0:
+            if before_count > current_places:
+                progress['value'] = 0
+                progress_label.configure(text='Без шансов, братик')
+            elif total_count > current_places:
+                position_percent = (before_count / current_places) * 100 
+                progress['value'] = 100 - position_percent
+                progress_label.configure(text=f'Вы в топ {100 - position_percent:.1f}%')
+            else:
                 position_percent = (before_count / total_count) * 100
                 progress['value'] = 100 - position_percent
                 progress_label.configure(text=f"Вы в топ {100 - position_percent:.1f}%")
+
     except Exception as e:
         messagebox.showerror("Ошибка", f"Произошла ошибка: {str(e)}")
         output.configure(text='Ошибка при обработке данных', foreground='red')
@@ -55,6 +65,8 @@ def on_update():
     try:
         update()
         update_script(current_url)
+        places_function(SPECIALTIES)
+
         messagebox.showinfo("Успех", "Данные успешно обновлены!")
     except Exception as e:
         messagebox.showerror("Ошибка", f"Не удалось обновить данные: {str(e)}")
