@@ -17,7 +17,7 @@
 
 ## 📸 Скриншоты
 
-| Главное окно | Результаты поиска |
+| Главное окно | Выбор направления |
 |--------------|-------------------|
 | <img src="https://github.com/user-attachments/assets/afd6fdc2-6034-4112-a38e-6135989ab094" width="600"> | <img src="https://github.com/user-attachments/assets/fd2c39ef-5c1e-4e5a-b2b7-9bd396de0fb6" width="600"> |
 
