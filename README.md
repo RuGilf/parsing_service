@@ -27,8 +27,8 @@
 
 1. Клонируйте репозиторий:
 ```bash
-git clone https://github.com/ваш-username/misis-admission-parser.git
-cd misis-admission-parser
+https://github.com/RuGilf/parsing_service.git
+cd parsing_service
 ```
 
 Установите зависимости:
