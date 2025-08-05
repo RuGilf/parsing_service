@@ -34,3 +34,10 @@ def all():
 
 def after(user_number):
     return all() - before(user_number)
+
+def find_place(selected_spec):
+    with open('places.csv', mode='r') as file:
+        csv_reader = csv.reader(file)
+        for row in csv_reader:
+            if selected_spec in row[0]:
+                return row[0][len(selected_spec) + 1:]
